@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Book an appointment with Nails Pro.">
+<title>Nails Pro — Online Booking</title>
+<style>
+:root{--red:#e51f2a;--blue:#1558d6;--ink:#202124;--muted:#68707d;--bg:#f5f7fb;--line:#dce1e8;--green:#1d7a45}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,sans-serif}
+header{background:#fff;text-align:center;padding:24px 16px;border-bottom:1px solid var(--line)}
+.logo{font-weight:900;font-size:clamp(30px,7vw,46px);font-style:italic;letter-spacing:-2px}
+.red{color:var(--red)} .blue{color:var(--blue)}
+.tag{font-family:Georgia,serif;letter-spacing:4px;margin-top:5px}
+main{max-width:760px;margin:22px auto;padding:0 14px}
+.card{background:#fff;border-radius:18px;padding:22px;margin-bottom:16px;border:1px solid var(--line)}
+h2{margin:0 0 14px} label{display:block;font-weight:700;margin:13px 0 6px}
+input,select,textarea,button{width:100%;padding:13px;border:1px solid #cbd2dc;border-radius:10px;font-size:16px}
+textarea{min-height:85px;resize:vertical}
+button{background:var(--red);color:white;border:0;font-weight:800;cursor:pointer;margin-top:16px}
+button.bluebtn{background:var(--blue)} button.greenbtn{background:var(--green)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.notice{background:#eef4ff;border-left:4px solid var(--blue);padding:12px;border-radius:8px;font-size:14px}
+.success{display:none;background:#edf9f1;border:1px solid #a8d8b8;padding:16px;border-radius:12px;margin-top:16px}
+.check{display:flex;gap:8px;align-items:flex-start;font-weight:400}
+.check input{width:auto;margin-top:4px} .muted{color:var(--muted);font-size:14px}
+.review{text-align:center} .qr{width:min(280px,80%);display:block;margin:12px auto;border-radius:12px}
+.review a{display:block;text-decoration:none} .hours div{padding:4px 0} .footer{background:#fff;border-top:1px solid var(--line);padding:20px 14px;text-align:center;color:var(--muted);font-size:13px} .footer a{color:var(--blue);text-decoration:none;margin:0 8px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<iframe name="nailsproSubmitFrame" id="nailsproSubmitFrame" style="display:none"></iframe>
+<header>
+  <div class="logo"><span class="red">NAILS PRO</span> <span class="blue">MENU</span></div>
+  <div class="tag">Beauty • Relax • Shine</div>
+</header>
+
+<main>
+<section class="card">
+<h2>📅 Book Your Appointment</h2>
+<div class="notice">Choose your service, technician, date and time. Appointments may be requested up to 30 days ahead.</div>
+
+<form id="booking">
+<label for="service">Service &amp; Price</label>
+<select id="service" required></select>
+<p class="muted">Prices marked “+” are starting prices; final price may vary based on length, shape, design, or time.</p>
+
+<label for="tech">Technician</label>
+<select id="tech" required>
+<option value="First Available">First Available</option>
+<option value="You">You</option>
+<option value="Wife">Wife</option>
+</select>
+
+<div class="grid">
+<div><label for="date">Date</label><input id="date" type="date" required></div>
+<div><label for="time">Time</label><select id="time" required></select></div>
+</div>
+
+<div class="grid">
+<div><label for="name">Customer Name</label><input id="name" required placeholder="Your name"></div>
+<div><label for="phone">Mobile Phone</label><input id="phone" type="tel" required placeholder="(###) ###-####"></div>
+</div>
+
+<label for="note">Special Request (optional)</label>
+<textarea id="note" placeholder="Nail design, removal, etc."></textarea>
+
+<label class="check">
+<input id="sms" type="checkbox" required>
+<span>I agree to receive appointment-related text messages from Nails Pro, including confirmations and reminders. Message/data rates may apply.</span>
+</label>
+
+<button type="submit">Request Appointment</button>
+</form>
+
+<div id="success" class="success" aria-live="polite"></div>
+</section>
+
+<section class="card hours">
+<h2>⏰ Business Hours</h2>
+<div><strong>Monday–Saturday:</strong> 9:00 AM–7:00 PM</div>
+<div><strong>Sunday:</strong> 12:00 PM–5:00 PM — <strong>Appointments only</strong></div>
+</section>
+
+<section class="card review">
+<h2>⭐ Google Reviews</h2>
+<p>We appreciate your honest feedback. Please leave us a Google review after your service.</p>
+<p><strong>Scan the QR code:</strong></p>
+<img class="qr" src="google-reviews-qr.png" alt="Nails Pro Google Reviews QR code">
+<a href="https://g.page/r/CVzV4iL8ZlWwEAE/review" target="_blank" rel="noopener">
+<button class="greenbtn" type="button">⭐ Leave a Google Review</button>
+</a>
+<p class="muted">Or tap the button above.</p>
+</section>
+
+<section class="card">
+<h2>📞 Contact Nails Pro</h2>
+<p>If you need help booking, please call us.</p>
+<a href="tel:+18597795925" style="text-decoration:none">
+<button class="bluebtn" type="button">📞 Call Nails Pro Support — (859) 779-5925</button>
+</a>
+</section>
+</main>
+
+<script>
+const GOOGLE_SHEETS_API="https://script.google.com/macros/s/AKfycbx2s7BvGGxHwMi3DZVtaBdsmqmVElnhST6ZUkzab7WG0oCQHfOMcia5nB-S_5GAsow3cg/exec";
+const serviceGroups = [
+  {category:"ACRYLIC POWDER", items:[
+    ["Acrylic Nails Full Set",45,false],
+    ["Acrylic Nails Overlay",45,false],
+    ["Acrylic Nails Fill In",35,false],
+    ["Gel Nails Full Set",55,false],
+    ["Gel Nails Fill In",45,false],
+    ["Pink & White Full Set",65,false],
+    ["Pink & White Fill In",55,false],
+    ["Pink & White Pink Fill In",40,false],
+    ["SNS Full Set",55,false],
+    ["SNS Real Nails",50,false],
+    ["Acrylic, Dipping Removal",20,false]
+  ]},
+  {category:"MANICURE & PEDICURE", items:[
+    ["Manicure",25,false],
+    ["Manicure With Gel Polish",40,false],
+    ["Basic Pedicure",45,false],
+    ["Deluxe Pedicure",55,false],
+    ["Platinum Pedicure",65,false],
+    ["Pedicure With Gel Polish",55,false],
+    ["Finger Nails Polish",20,false],
+    ["Finger Nails Gel Polish",30,false],
+    ["Toe Nails Polish",20,false],
+    ["Toe Nails With Gel Polish",30,false]
+  ]},
+  {category:"ADD-ONS", items:[
+    ["Nail Design",5,true],
+    ["3 Or More Colors",5,true],
+    ["French Or Colored Tips",5,true],
+    ["Custom Shape",5,true],
+    ["Nail Extensions (Add Length)",5,true],
+    ["Add Gel Polish To Service",10,true]
+  ]},
+  {category:"REPAIRS & REMOVAL", items:[
+    ["Nail Repair",5,true],
+    ["Take-Off Only",20,true],
+    ["Take-Off With Additional Service",5,true]
+  ]}
+];
+
+const serviceEl = document.getElementById("service");
+const techEl = document.getElementById("tech");
+const dateEl = document.getElementById("date");
+const timeEl = document.getElementById("time");
+
+serviceGroups.forEach(group => {
+  const optgroup = document.createElement("optgroup");
+  optgroup.label = group.category;
+  group.items.forEach(([name, price, starting]) => {
+    const option = document.createElement("option");
+    option.value = name;
+    option.dataset.price = price;
+    option.dataset.starting = starting ? "true" : "false";
+    option.textContent = `${name} — $${price}${starting ? "+" : ""}`;
+    optgroup.appendChild(option);
+  });
+  serviceEl.appendChild(optgroup);
+});
+
+const today = new Date();
+const maxDate = new Date();
+maxDate.setDate(maxDate.getDate() + 30);
+
+function localISODate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+
+dateEl.min = localISODate(today);
+dateEl.max = localISODate(maxDate);
+
+function fillTimes(day) {
+  timeEl.innerHTML = "";
+
+  timeEl.disabled = false;
+  const start = day === 0 ? 12 : 9;
+  const end = day === 0 ? 17 : 19;
+
+  for (let h = start; h < end; h++) {
+    for (const m of [0,30]) {
+      const option = document.createElement("option");
+      option.value = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+      const ap = h >= 12 ? "PM" : "AM";
+      const hh = h % 12 || 12;
+      option.textContent = `${hh}:${String(m).padStart(2,"0")} ${ap}`;
+      timeEl.appendChild(option);
+    }
+  }
+}
+
+fillTimes(today.getDay());
+
+dateEl.addEventListener("change", () => {
+  if (!dateEl.value) {
+    timeEl.innerHTML = "";
+    timeEl.disabled = true;
+    return;
+  }
+  const selected = new Date(dateEl.value + "T12:00:00");
+  fillTimes(selected.getDay());
+});
+
+const bookingForm=document.getElementById("booking");
+let pendingBooking=null;
+
+window.addEventListener("message", event=>{
+  if(!event.data || event.data.source!=="nailspro") return;
+  const result=event.data;
+  const box=document.getElementById("success");
+  box.style.display="block";
+  if(result.ok){
+    box.innerHTML=`<strong>✅ Appointment confirmed!</strong><br><br>
+      ${pendingBooking.service}<br>${pendingBooking.date} at ${pendingBooking.time}<br>
+      Technician: ${pendingBooking.technician}<br>Customer: ${pendingBooking.name}<br><br>
+      <span class="muted">Your appointment has been saved to Nails Pro.</span>`;
+    bookingForm.reset(); refreshTimes(); renderOwner();
+  } else {
+    box.innerHTML=`<strong>❌ ${result.error || "Unable to save the appointment."}</strong>`;
+    refreshTimes();
+  }
+  pendingBooking=null;
+});
+
+bookingForm.addEventListener("submit", event=>{
+  event.preventDefault();
+  if(!serviceEl.value || !dateEl.value || !timeEl.value){
+    alert("Please choose a service, date, and time."); return;
+  }
+
+  const selected=serviceEl.options[serviceEl.selectedIndex];
+  const payload={
+    action:"create",
+    service:serviceEl.value,
+    price:selected?selected.dataset.price:"",
+    technician:techEl.value,
+    date:dateEl.value,
+    time:timeEl.value,
+    name:document.getElementById("name").value.trim(),
+    phone:document.getElementById("phone").value.trim(),
+    note:document.getElementById("note").value.trim()
+  };
+
+  const box=document.getElementById("success");
+  box.style.display="block";
+  box.innerHTML="<strong>⏳ Sending appointment...</strong>";
+
+  const callback="nailsProCreate_"+Date.now()+"_"+Math.floor(Math.random()*100000);
+  const script=document.createElement("script");
+  let finished=false;
+
+  function finish(result){
+    if(finished)return;
+    finished=true;
+    clearTimeout(timer);
+    delete window[callback];
+    script.remove();
+
+    if(result && result.ok){
+      box.innerHTML=`<strong>✅ Appointment confirmed!</strong><br><br>
+        ${payload.service}<br>${payload.date} at ${payload.time}<br>
+        Technician: ${payload.technician}<br>Customer: ${payload.name}<br><br>
+        <span class="muted">Your appointment has been saved to Nails Pro.</span>`;
+      bookingForm.reset();
+      refreshTimes();
+      renderOwner();
+    }else{
+      box.innerHTML=`<strong>❌ ${result && result.error ? result.error : "Unable to save the appointment."}</strong>`;
+      refreshTimes();
+    }
+  }
+
+  window[callback]=finish;
+  script.onerror=()=>finish({ok:false,error:"The booking server could not be reached. Please call Nails Pro Support at (859) 779-5925."});
+
+  const params=new URLSearchParams();
+  Object.entries(payload).forEach(([k,v])=>params.set(k,v??""));
+  params.set("callback",callback);
+  script.src=GOOGLE_SHEETS_API+"?"+params.toString();
+  document.body.appendChild(script);
+
+  const timer=setTimeout(()=>{
+    finish({ok:false,error:"The booking server did not respond. Please try again or call (859) 779-5925."});
+  },15000);
+});
+
+
+const ownerBtn=document.getElementById("ownerBtn");
+const owner=document.getElementById("owner");
+const viewDate=document.getElementById("viewDate");
+const apptList=document.getElementById("apptList");
+const clearAppts=document.getElementById("clearAppts");
+viewDate.value=new Date().toISOString().slice(0,10);
+
+function getAppointments(){
+  return new Promise(resolve=>{
+    const callback="nailsProCb_"+Date.now()+"_"+Math.floor(Math.random()*10000);
+    const script=document.createElement("script");
+    window[callback]=data=>{
+      try{ resolve(data.ok ? (data.appointments||[]) : []); }
+      finally{ delete window[callback]; script.remove(); }
+    };
+    script.onerror=()=>{ delete window[callback]; script.remove(); resolve([]); };
+    script.src=GOOGLE_SHEETS_API+"?action=list&callback="+encodeURIComponent(callback);
+    document.body.appendChild(script);
+    setTimeout(()=>{ if(window[callback]){delete window[callback];script.remove();resolve([]);} },10000);
+  });
+}
+async function renderOwner(){
+  const all=await getAppointments();
+  const d=viewDate.value;
+  const list=all.filter(a=>!d||a.date===d).sort((a,b)=>a.time.localeCompare(b.time));
+  if(!list.length){
+    apptList.innerHTML='<p class="muted">No appointments for this date.</p>'; return;
+  }
+  apptList.innerHTML=list.map(a=>`<div class="appt">
+    <strong>${a.time}</strong> — ${a.name}<br>
+    ${a.service}${a.price ? " — $"+a.price : ""}<br>
+    Technician: ${a.technician}<br>
+    Phone: ${a.phone}<br>
+    Status: <strong>${a.status}</strong>
+    ${a.status!=="Completed"&&a.status!=="Cancelled"
+      ? `<button class="green" onclick="markDone('${a.id}')">Mark Completed</button>
+         <button class="gray" onclick="markCancel('${a.id}')">Cancel</button>` : ""}
+    ${a.status==="Completed"
+      ? `<a href="https://g.page/r/CVzV4iL8ZlWwEAE/review" target="_blank" rel="noopener"><button>⭐ Google Review</button></a>` : ""}
+  </div>`).join("");
+}
+
+window.markDone=async id=>{
+  const r=await fetch(GOOGLE_SHEETS_API,{
+    method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({action:"status",id:id,status:"Completed"})
+  });
+  const j=await r.json();
+  if(!j.ok){alert(j.error||"Could not update appointment.");return;}
+  renderOwner();
+};
+
+window.markCancel=async id=>{
+  const r=await fetch(GOOGLE_SHEETS_API,{
+    method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({action:"status",id:id,status:"Cancelled"})
+  });
+  const j=await r.json();
+  if(!j.ok){alert(j.error||"Could not update appointment.");return;}
+  renderOwner(); refreshTimes();
+};
+
+ownerBtn.addEventListener("click",()=>{
+  owner.classList.toggle("hidden");
+  if(!owner.classList.contains("hidden")) renderOwner();
+});
+viewDate.addEventListener("change",renderOwner);
+clearAppts.addEventListener("click",()=>{
+  alert("Appointments are stored in Google Sheets. Manage or delete them from the Sheet.");
+});
+
+</script>
+
+<footer class="footer">
+  <div><strong>Nails Pro 11 LLC</strong></div>
+  <div>235 Prince Royal Drive, Berea, KY 40403-1471</div>
+  <div>Call Nails Pro Support: <a href="tel:+18597795925">(859) 779-5925</a></div>
+  <div style="margin-top:8px">
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="terms.html">Terms & Conditions</a>
+  </div>
+  <div style="margin-top:8px">© 2026 Nails Pro 11 LLC. All rights reserved.</div>
+</footer>
+
+</body></html>
